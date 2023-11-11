@@ -3,6 +3,7 @@
 
 min = 0                         /* starting value for the loop index; note that this is a symbol (constant), not a variable */
 max = 31                        /* loop exits when the index hits this number (loop condition is i<max) */
+cutoff = 10                     /* cutoff point for printing the high digit */
 
 _start:
     mov     $min,%r15           /* loop index */
@@ -10,10 +11,20 @@ _start:
 loop:
     mov $0,%rdx                 /* rdx needs to be 0 before division */
     mov %r15,%rax               /* store the current loop value for conversion */
-    mov $10, %r14               /* store 10 (division and newline operator) */
+    mov $10,%r14                /* store 10 (division and newline operator) */
     div %r14                    /* divide the index by 10, quotient in rax, remainder rdx */
 
+    cmp $cutoff,%r15            /* compare the current index value with the cutoff point */
+    jl space                    /* jump to space label if index < 10 */
+
+highdigit:
     add $48,%rax                /* convert high digit into ascii */
+    jmp lowdigit
+
+space:
+    mov $32,%rax                /* load in space character */
+
+lowdigit:
     add $48,%rdx                /* convert low digit into ascii */
 
     mov $msg,%r13               /* store write append location */
@@ -45,3 +56,4 @@ loop:
 
 msg:    .ascii          "Loop: "
         len = . - msg
+
