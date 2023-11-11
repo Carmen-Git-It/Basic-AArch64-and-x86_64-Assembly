@@ -1,7 +1,8 @@
 .text
 .globl _start
 
-min = 0                          /* starting value for the loop index; note that this is a symbol (constant), not a >max = 30                         /* loop exits when the index hits this number (loop condition is i<max) */
+min = 0                          /* starting value for the loop index; note that this is a symbol (constant), not a */
+max = 30                         /* loop exits when the index hits this number (loop condition is i<max) */
 cutoff = 10                      /* cutoff for displaying only the low digit */
 
 _start:

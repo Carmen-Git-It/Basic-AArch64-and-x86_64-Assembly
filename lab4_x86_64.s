@@ -8,8 +8,23 @@ _start:
     mov     $min,%r15           /* loop index */
 
 loop:
+    mov %r15,%r14               /* store the current loop value for conversion */
+    add $48,%r14                /* convert to ascii character */
+
     mov $len,%rdx               /* message length */
     mov $msg,%rsi               /* message location */
+
+    mov $msg,%r13               /* store write append location */
+    add $len,%r13               /* go to the end of the msg */
+    add $1,%r13                 /* add 1 to length to append character */
+
+    mov %r14,(%r13)             /* move loop index character to end of message */
+    mov $10,%r14                /* set newline character in r14 */
+    add $1,%r13                 /* go to next message location */
+    mov %r14,(%r13)             /* append newline character to msg */
+
+    add $3,%rdx                 /* Add 2 to length */
+
     mov $1,%rdi                 /* file descriptor stdout */
     mov $1,%rax                 /* sys_write */
     syscall
@@ -24,5 +39,5 @@ loop:
 
 .section .data
 
-msg:    .ascii          "Loop\n"
+msg:    .ascii          "Loop: "
         len = . - msg
