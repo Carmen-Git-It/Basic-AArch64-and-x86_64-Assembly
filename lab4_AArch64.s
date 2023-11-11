@@ -2,28 +2,36 @@
 .globl _start
 
 min = 0                          /* starting value for the loop index; note that this is a symbol (constant), not a >max = 30                         /* loop exits when the index hits this number (loop condition is i<max) */
+cutoff = 10                      /* cutoff for displaying only the low digit */
 
 _start:
 
     mov     x19, min
 
 loop:
-    cmp     x19, max
-
     mov x0, 1           /* file descriptor: 1 is stdout */
     adr x1, msg         /* message location (memory address) */
 
     mov x22, 10         /* store the value of 10 in x24 for math purposes, is also newline character ascii */
-    udiv x23, x19, x22  /* divide value by 10 to get high decimal value */
-
-    add x20, x23, 48    /* loop high index value -> ascii */
 
     mov x2, len         /* message length (bytes) */
     add x2, x2, 1       /* increment len to get next byte after the space */
 
     adr x21, msg        /* load address of msg into register to add to msg */
     add x21, x21, x2    /* add the len to the address of msg */
-    str x20, [x21, 0]   /* store high digit in address of end of msg */
+
+    udiv x23, x19, x22  /* divide value by 10 to get high decimal value */
+    cmp x19, cutoff     /* compare the current loop value to the cutoff value */
+    b.lt space          /* if less than cutoff, load space character into memory */
+
+highdigit:
+    add x20, x23, 48    /* loop high index value -> ascii */
+    bl lowdigit         /* jump to lowdigit step */
+space:
+    mov x20, 32         /* space character */
+
+lowdigit:
+    str x20, [x21, 0]   /* store high digit character in address of end of msg */
 
     msub x23, x23, x22, x19     /* Get the remainder from the division of the loop index / 10 */
     add x20, x23, 48    /* convert low digit to ascii */
@@ -37,6 +45,7 @@ loop:
     mov x8, 64          /* write is syscall #64 */
     svc 0               /* invoke syscall */
 
+    cmp     x19, max    /* compare to the max of the loop */
     add x19, x19, 1     /* increment loop counter by 1 */
     b.ne    loop
 
