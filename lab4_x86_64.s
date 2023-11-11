@@ -8,7 +8,11 @@ _start:
     mov     $min,%r15           /* loop index */
 
 loop:
-    /* ... body of the loop ... do something useful here ... */
+    mov $len,%rdx               /* message length */
+    mov $msg,%rsi               /* message location */
+    mov $1,%rdi                 /* file descriptor stdout */
+    mov $1,%rax                 /* sys_write */
+    syscall
 
     inc     %r15                /* increment index */
     cmp     $max,%r15           /* see if we're done */
@@ -17,3 +21,8 @@ loop:
     mov     $0,%rdi             /* exit status */
     mov     $60,%rax            /* syscall sys_exit */
     syscall
+
+.section .data
+
+msg:    .ascii          "Loop\n"
+        len = . - msg
